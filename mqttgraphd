@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+#
+# Connect to mqtt, wait for messages with sensor readings and write them into a rrd file
+#
+
+$configfile = "./mqttgraphd.conf";
+$debug = 1;
+
+
+if (!$debug) {
+  use Proc::Daemon;
+  $pid = Proc::Daemon::Init;
+  exit if $pid;
+}
+
+use Config::Simple;
+
+Config::Simple->import_from($configfile, \%Config);
+
+
