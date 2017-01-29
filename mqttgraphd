@@ -15,6 +15,54 @@ if (!$debug) {
 
 use Config::Simple;
 
-Config::Simple->import_from($configfile, \%Config);
+$cfg = new Config::Simple($configfile);
+
+$mosquittohost = $cfg->param("mosquitto-host") ? $cfg->param("mosquitto-host") : "localhost";
+$mqtttopic = $cfg->param("listen") ? $cfg->param("listen") : '+/#';
+
+# open mosquitto and wait for messages to arrive
+
+open(M,"mosquitto_sub -v -h $mosquittohost -t $mqtttopic |");
+
+while (<M>) {
+  my $start, $location, $type, $value;
+  /^\/([^\/]+)\/(.*)\/(\S+) (.*)$/;
+  print $_;
+
+  $start = $1;
+  $location = $2;
+  $type = $3;
+  $value = $4;
+
+  $location =~ s/\//_/g;
+
+  print "Start    = " . $start . "\n";
+  print "Location = " . $location . "\n";
+  print "Type     = " . $type . "\n";
+  print "Value    = " . $value . "\n";
+  
+  # now composite the filename
+  my $filename = $cfg->param("datadir") . "/" . $location . ".rrd";
+  print "$filename\n";
+
+  # check if file not exists
+  if (! -e $filename) {
+    &createrrdfile($filename,$type);
+  }
+
+  # it exists but is not writable
+  if (! -w $filename) {
+    print STDERR "$filename is not writable\n";
+    next;
+  }
+
+  # write value into rrd file
+  `rrdupdate $filename $value`;
+}
+
+  
+}
+
+
 
 
