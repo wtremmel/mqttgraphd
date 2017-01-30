@@ -57,7 +57,7 @@ while (<M>) {
   }
 
   # write value into rrd file
-  `rrdupdate $filename $value`;
+  print STDERR `rrdupdate $filename N:$value`;
 }
 
 sub createrrdfile {
