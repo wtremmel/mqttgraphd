@@ -3,7 +3,7 @@
 # Connect to mqtt, wait for messages with sensor readings and write them into a rrd file
 #
 
-$configfile = "./mqttgraphd.conf";
+$configfile = "/usr/local/etc/mqttgraphd.conf";
 $debug = 1;
 
 
