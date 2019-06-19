@@ -4,7 +4,7 @@
 #
 
 $configfile = "/usr/local/etc/mqttgraphd.conf";
-$debug = 1;
+$debug = 0;
 
 
 if (!$debug) {
@@ -18,11 +18,14 @@ use Config::Simple;
 $cfg = new Config::Simple($configfile);
 
 $mosquittohost = $cfg->param("mosquitto-host") ? $cfg->param("mosquitto-host") : "localhost";
+$mosquittoport = $cfg->param("mosquitto-port") ? $cfg->param("mosquitto-port") : "1883";
+$mosquittouser = $cfg->param("mosquitto-user") ? "-u " . $cfg->param("mosquitto-user") : "";
+$mosquittopass = $cfg->param("mosquitto-pass") ? "-P " . $cfg->param("mosquitto-pass") : "";
 $mqtttopic = $cfg->param("listen") ? $cfg->param("listen") : '+/#';
 
 # open mosquitto and wait for messages to arrive
 
-open(M,"mosquitto_sub -v -h $mosquittohost -t $mqtttopic |");
+open(M,"mosquitto_sub -v -h $mosquittohost -p $mosquittoport $mosquittouser $mosquittopass -t $mqtttopic |");
 
 while (<M>) {
   my $start, $location, $type, $value;
